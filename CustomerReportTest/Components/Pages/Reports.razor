@@ -1,0 +1,486 @@
+﻿@page "/reports"
+
+<h3>Reports</h3>
+
+<div class="report-container">
+    @foreach (var organizationEntry in SampleData.Organizations)
+    {
+        <div class="organization">
+            <h3>Customer Name: @organizationEntry.Value.customerName</h3>
+            <p>Organization ID: @organizationEntry.Value.organizationId</p>
+
+            @foreach (var farmEntry in organizationEntry.Value.farms)
+            {
+                <div class="farm">
+                    <h4>Farm: @farmEntry.Value.name</h4>
+                    <p>Location: @farmEntry.Value.location</p>
+                    <p>Average temperature: @farmEntry.Value.average_temp °C</p>
+                    <p>Average oxygen: @farmEntry.Value.average_oxygen</p>
+                    <p>Average depth: @farmEntry.Value.average_depth</p>
+                    <p>Average kjmhunn: @farmEntry.Value.average_kjmhunn</p>
+                    <p>Average bevegelig: @farmEntry.Value.average_bevegelig</p>
+                    <p>Average weight: @farmEntry.Value.average_weight</p>
+                    <p>High baseline: @farmEntry.Value.high_baseline</p>
+                    <p>Latitude: @farmEntry.Value.latitude</p>
+                    <p>Longitude: @farmEntry.Value.longitude</p>
+                    @foreach (var cageEntry in farmEntry.Value.cages)
+                    {
+                        <div class="cage">
+                            <h5>Cage Name: @cageEntry.Value.serial_number</h5>
+                            <p>Cage ID: @cageEntry.Value.id</p>
+
+                            @if (cageEntry.Value.DetailedData != null && cageEntry.Value.DetailedData.Any())
+                            {
+                                var detailedData = cageEntry.Value.DetailedData.First();
+
+                                <div class="table-container">
+                                <table class="nested-table detailed-data-table">
+                                        <tr><th colspan="2">Environment Data</th></tr>
+                                    <tr>
+                                        <th>Min Depth</th>
+                                        <td>@detailedData.environment.min_depth</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Max Depth</th>
+                                        <td>@detailedData.environment.max_depth</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Min Oxygen</th>
+                                        <td>@detailedData.environment.min_oxygen</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Max Oxygen</th>
+                                        <td>@detailedData.environment.max_depth</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Min Temp</th>
+                                        <td>@detailedData.environment.min_temp</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Max Temp</th>
+                                        <td>@detailedData.environment.max_temp</td>
+                                    </tr>
+                                </table>
+                                <table class="nested-table detailed-data-table">
+                                        <tr><th colspan="2">Lice Details</th></tr>
+                                        <tr>
+                                            <th>Fish yesterday</th>
+                                            <td>@detailedData.lice.fishs_yesterday</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Fish today</th>
+                                            <td>@detailedData.lice.fishs_today</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Mature female lice</th>
+                                            <td>@detailedData.lice.kjmhunn</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Moving lice</th>
+                                            <td>@detailedData.lice.bevegelig</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Last Sample Date</th>
+                                            <td>@detailedData.lice.last_sample_date</td>
+                                        </tr>
+                                </table>
+                                </div>
+                            }  
+                            <table>
+                                <tr><th>Fish Group Name</th><th>ID</th></tr>
+                                @foreach (var fishGroup in cageEntry.Value.fishGroups)
+                                {
+                                    <tr>
+                                        <td>@fishGroup.name</td>
+                                        <td>@fishGroup.id</td>
+                                        <td>
+                                            @if (fishGroup.statistics != null)
+                                            {
+                                                foreach (var statistic in fishGroup.statistics)
+                                                {
+                                                    <table class="nested-table">
+                                                        <tr><th>Date</th><th>Oxygen</th><th>Temperature</th><th>Number of Fish</th><th>Lice Details</th></tr>
+                                                        <tr>
+                                                            <td>@statistic.date</td>
+                                                            <td>@statistic.oxygen</td>
+                                                            <td>@statistic.temprature</td>
+                                                            <td>@statistic.numberOfFishs</td>
+                                                            <td>
+                                                                @if (statistic.lices != null)
+                                                                {
+                                                                    <table>
+                                                                        <tr><th>Type</th><th>Min</th><th>Average</th><th>Max</th></tr>
+                                                                        @foreach (var lice in statistic.lices)
+                                                                        {
+                                                                            <tr>
+                                                                                <td>@lice.name</td>
+                                                                                <td>@lice.min</td>
+                                                                                <td>@lice.average</td>
+                                                                                <td>@lice.max</td>
+                                                                            </tr>
+                                                                        }
+                                                                    </table>
+                                                                }
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                }
+                                            }
+                                            @if (fishGroup.averageData != null)
+                                            {
+                                                foreach (var averageData in fishGroup.averageData)
+                                                {
+                                                    <table class="nested-table average-data-table">
+                                                        <tr>
+                                                            <th>Week number</th>
+                                                            <th>Start date</th>
+                                                            <th>End date</th>
+                                                            <th>Average Weight</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>@averageData.average_weight.week_number</td>
+                                                            <td>@averageData.average_weight.start_date</td>
+                                                            <td>@averageData.average_weight.end_date</td>
+                                                            <td>@averageData.average_weight.average</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th colspan="4">Average Lice Details</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="4">
+                                                                <table class="nested-table lice-details-table">
+                                                                    @foreach (var lice in averageData.average_lice.lices)
+                                                                    {
+                                                                        <tr>
+                                                                            <td>@lice.name</td>
+                                                                            <td>@lice.average</td>
+                                                                        </tr>
+                                                                    }
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                }
+                                            }
+                                            
+                                        </td>
+                                    </tr>
+                                }
+                            </table>
+                            @if (cageEntry.Value.SensorsInfo != null)
+                            {
+                                <h5> Sensor Data</h5>
+                                @foreach (var sensor in cageEntry.Value.SensorsInfo)
+                                {
+                                    <table class="nested-table">
+                                        <tr>
+                                            <th>Active</th>
+                                            <th>Sensor name</th>
+                                            <th>Last Schedule Status</th>
+                                            <th>Winch ID</th>
+                                            <th>Total fish today</th>
+                                        </tr>
+                                        <tr>
+                                            <td class="@(sensor.active ? "active-status-yes" : "active-status-no")">@(sensor.active ? "Yes" : "No")</td>
+                                            <td>@sensor.serial_number</td>
+                                            <td>@sensor.last_schedule_status</td>
+                                            <td>@sensor.winch</td>
+                                            <td>@sensor.total_fishs_today</td>
+                                        </tr>
+                                    </table>
+
+                                    @if (sensor.scheduleData != null)
+                                    {
+                                        <h6>Schedule for Sensor</h6>
+                                            <table class="nested-table">
+                                                <thead>
+                                                <tr>
+                                                    <th>Active</th>
+                                                    <th>Setting</th>
+                                                    <th>Positions</th>
+                                                    <th>Schedule Time</th>
+                                                    <th>Period (hours)</th>
+                                                    <th>Operation type</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                @foreach (var schedule in sensor.scheduleData)
+                                                {
+                                                    <tr>
+                                                        <td class="@(schedule.is_active ? "active-status-yes" : "active-status-no")">@(schedule.is_active ? "Yes" : "No")</td>
+                                                        <td>@schedule.setting</td>
+                                                        <td>@schedule.positions</td>
+                                                        <td>@schedule.schedule_time</td>
+                                                        <td>@schedule.period</td>
+                                                        <td>@schedule.operation_type</td>
+                                                    </tr>
+                                                }
+                                                </tbody>
+                                            </table>
+                                    }
+                                }
+                            }
+                        </div> <!-- cage -->
+                    }
+                </div> <!-- farm -->
+            }
+        </div> <!-- organization -->
+    }
+</div> <!-- report-container -->
+
+
+@code {
+    private static Root SampleData => new Root
+    {
+        Organizations = new Dictionary<string, Organization>
+        {
+            {
+                "Bjørøya", new Organization
+                {
+                organizationId = "5f255656-300c-4574-a305-6df4e03c4283",
+                customerName = "Bjørøya",
+                farms = new Dictionary<string, Farm>
+                {
+                    {
+                        "Farm#1", new Farm
+                        {
+                            id = "e518c0ea-24d0-42c1-95aa-dd90658be5fe",
+                            name = "Eldviktaren",
+                            location = "Flatanger",
+                            average_temp = "4.33",
+                            average_oxygen = "92.49",
+                            average_depth = "7.418",
+                            average_kjmhunn = 0.5763645670303469F,
+                            average_bevegelig = 2.361019365122862F,
+                            average_weight = 2512.1844944149884F,
+                            high_baseline = 0.5,
+                            latitude = 64.4561025898351000F,
+                            longitude = 10.6351378868365970F,
+
+                            cages = new Dictionary<string, Cage>
+                            {
+                                {
+                                    "Cage#1", new Cage
+                                    {
+                                        id = "23a646ee-446c-45b0-9b18-39f0fd8973ef",
+                                        serial_number = "M08",
+                                        fishGroups = new List<FishGroup>
+                                        {
+                                            new FishGroup
+                                            {
+                                                id = "82422ad2-b40d-4cef-9c35-31a2a1551547",
+                                                name = "Fiskegruppe1",
+                                                    statistics = new List<Statistic>
+                                                    {
+                                                        new Statistic
+                                                        {
+                                                            date = "2024-01-17",
+                                                            oxygen = "90.47",
+                                                            temprature = "4.63",
+                                                            numberOfFishs = 1047,
+                                                            lices = new List<Lice>
+                                                            {
+                                                                new Lice { name = "bevegelig", min = 0.40389255, average = 0.3192233, max = 0.40389255 },
+                                                                new Lice { name = "fastsittende", min = 0, average = 0, max = 0 },
+                                                                new Lice { name = "gatt", min = 0, average = 0, max = 0 },
+                                                                new Lice { name = "kjmhunn", min = 0.10875854, average = 0.103597246, max = 0.10875854 },
+
+                                                            }
+                                                        },
+                                                        new Statistic
+                                                        {
+                                                            date = "2024-01-18",
+                                                            oxygen = "90.28",
+                                                            temprature = "4.4",
+                                                            numberOfFishs = 3927,
+                                                            lices = new List<Lice>
+                                                            {
+                                                                new Lice { name = "bevegelig", min = 0.2913195, average = 0.23320839, max = 0.2913195 },
+                                                                new Lice { name = "fastsittende", min = 0, average = 0, max = 0 },
+                                                                new Lice { name = "gatt", min = 0, average = 0, max = 0 },
+                                                                new Lice { name = "kjmhunn", min = 0.08364758, average = 0.080081515, max = 0.08364758 },
+
+                                                            }
+                                                        },
+                                                        new Statistic
+                                                        {
+                                                            date = "2024-01-19",
+                                                            oxygen = "90.47",
+                                                            temprature = "4.63",
+                                                            numberOfFishs = 1047,
+                                                            lices = new List<Lice>
+                                                            {
+                                                                new Lice { name = "bevegelig", min = 0.74874043, average = 0.45347726, max = 0.74874043 },
+                                                                new Lice { name = "fastsittende", min = 0, average = 0, max = 0 },
+                                                                new Lice { name = "gatt", min = 0, average = 0, max = 0 },
+                                                                new Lice { name = "kjmhunn", min = 0.22259416, average = 0.19256859, max = 0.22259416 },
+
+                                                            }
+                                                        },
+                                                        // statistics.
+                                                    },
+                                                    averageData = new List<AverageData>
+                                                    {
+                                                        new AverageData
+                                                        {
+                                                            average_weight = new AverageWeight
+                                                            {
+                                                                week_number = 1,
+                                                                start_date = "2024-01-01",
+                                                                end_date = "2024-01-07",
+                                                                average = 2585.3506
+                                                            },
+                                                            average_lice = new AverageLice
+                                                            {
+                                                                week_number = 4,
+                                                                date_from = "2024-01-22",
+                                                                date_to = "2024-01-22",
+
+                                                                lices = new List<Lice>
+                                                                {
+                                                                    new Lice { name = "bevegelig", average = 2.6834357 },
+                                                                    new Lice { name = "fastsittende", average = 0 },
+                                                                    new Lice { name = "kjmhunn", average = 0.5401556 }
+                                                                },
+                                                            }
+                                                        },
+                                                        // AverageData.
+                                                    },
+                                            }
+                                            // fish groups.
+                                        },
+
+                                        SensorsInfo = new List<SensorInfo>
+                                        {
+                                            new SensorInfo
+                                            {
+                                                id = "e5caa172-e4f9-4b2a-b571-374da243d2a1",
+                                                last_schedule_status = "failed",
+                                                serial_number = "rolleye-597",
+                                                active = true,
+                                                winch = "061f2b8e-982a-4e97-aee2-082a3046fd04",
+                                                total_fishs_today = 20662,
+                                                scheduleData = new List<ScheduleData>
+                                                {
+                                                    new ScheduleData
+                                                    {
+                                                        id = "ab7fea2a-24aa-40ac-82fd-b805a17145ee",
+                                                        created = "2023-12-18T06:37:08+0000",
+                                                        operation_type = "schedule-cycle",
+                                                        is_active = false,
+                                                        positions = "12,5;12,6;12,7;12,8;12,9;12,10;12,11;12,12;12,13;12,14",
+                                                        period = 4,
+                                                        schedule_time = "01:00",
+                                                        setting = "winch"
+                                                    },
+                                                    new ScheduleData
+                                                    {
+                                                        id = "e5cc78f0-2963-4ee2-b5de-1efeeb8e328c",
+                                                        created = "2023-12-18T06:35:49+0000",
+                                                        operation_type = "schedule-cycle",
+                                                        is_active = false,
+                                                        positions = "7,5;7,6;7,7;7,8;7,9;7,10;7,11;7,12;7,13;7,14",
+                                                        period = 4,
+                                                        schedule_time = "16:00",
+                                                        setting = "winch"
+                                                    },
+                                                    new ScheduleData
+                                                    {
+                                                        id = "bc4f3623-3770-4d02-80f4-fbeeec2db005",
+                                                        created = "2023-12-15T07:17:07+0000",
+                                                        operation_type = "schedule",
+                                                        is_active = true,
+                                                        schedule_time = "17:00",
+                                                        setting = "clean"
+                                                    },
+                                                    new ScheduleData
+                                                    {
+                                                        id = "7f0e64f6-4e1f-4f0f-b358-2f0155cd9262",
+                                                        created = "2023-12-15T07:19:11+0000",
+                                                        operation_type = "schedule-cycle",
+                                                        is_active = true,
+                                                        positions = "180",
+                                                        schedule_time = "09:00",
+                                                        setting = "tilt"
+                                                    },
+                                                    new ScheduleData
+                                                    {
+                                                        id = "1043c8d4-7ec3-4810-9bf0-545e03b6bfc5",
+                                                        created = "2023-12-18T06:34:25+0000",
+                                                        operation_type = "schedule-cycle",
+                                                        is_active = false,
+                                                        positions = "22,5;22,6;22,7;22,8;22,9",
+                                                        period = 3,
+                                                        schedule_time = "09:00",
+                                                        setting = "winch"
+                                                    }
+                                                    // ScheduledData.
+                                                }
+                                            }
+                                            //SensorInfo
+                                        },
+
+                                        DetailedData = new List<DetailedData>
+                                        {
+                                            new DetailedData
+                                            {
+                                                id = "82422ad2-b40d-4cef-9c35-31a2a1551547",
+                                                organization = "5f255656-300c-4574-a305-6df4e03c4283",
+                                                farm_id = "e518c0ea-24d0-42c1-95aa-dd90658be5fe",
+                                                name = "Fiskegruppe1",
+                                                cage_winch_sensor = new CageWinchSensor
+                                                {
+                                                    cage = "M08",
+                                                    circumference = 160,
+                                                    depth_lead = 20,
+                                                    depth_deepest_point = 25,
+                                                    sensor = "rolleye-597",
+                                                    winch = 570,
+                                                    rol = -8.38F,
+                                                    tilt = 186.33F,
+                                                    x_pos = 8.99F,
+                                                    z_pos_deviation = 0.115F,
+                                                    depth = 9.865F
+                                                },
+                                                lice = new LiceDetailedData
+                                                {
+                                                    fishs_yesterday = 10411,
+                                                    fishs_today = 18888,
+                                                    kjmhunn = 0.5401556046489291,
+                                                    bevegelig = 2.6834357890692533,
+                                                    last_sample_date = "2024-01-22"
+                                                },
+                                                weight = new WeightDetailedData
+                                                {
+                                                    fishs_yesterday = 2971,
+                                                    fishs_today = 1774,
+                                                    average_weight = 2431.7955983768716,
+                                                    last_sample_date = "2024-01-22"
+                                                },
+                                                environment = new EnvironmentDetailedData
+                                                {
+                                                    min_depth = 9.443F,
+                                                    max_depth = 11.186F,
+                                                    min_oxygen = 80.73F,
+                                                    max_oxygen = 92.44F,
+                                                    min_temp = 4.08F,
+                                                    max_temp = 4.42F
+                                                }
+                                            }
+
+                                        },
+                                        
+                                    }
+                                    // cages.
+                                }
+                            }
+                        }
+                            // farms.
+                    }
+                }
+            }
+                // organizations.
+        }
+    }
+    };
+}
