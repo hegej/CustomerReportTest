@@ -1,4 +1,7 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@inject NavigationManager NavigationManager
+@inject OrganizationService OrganizationService
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">CustomerReportTest</a>
     </div>
@@ -26,26 +29,21 @@
             </NavLink>
         </div>
 
-        @if (organizations != null)
+        @if (organizations != null && organizations.Any())
         {
-            <div class="nav-headline px-3 py-2">
-                Generate Reports:
-            </div>
-
+            <div class="nav-headline px-3 py-2">Generate Reports:</div>
             @foreach (var org in organizations)
             {
-                <NavLink class="nav-link" href="/generate-report/@org.name">
+                <NavLink class="nav-link" href="@($"/generate-report/{org.name}")">
                     <span class="text">@org.name</span>
                 </NavLink>
             }
-        }J
+        }
     </nav>
 </div>
 
-@inject OrganizationService OrganizationService
-
 @code {
-    private IEnumerable<ActiveOrganization> organizations;
+    private IEnumerable<ActiveOrganization>? organizations;
 
     protected override async Task OnInitializedAsync()
     {

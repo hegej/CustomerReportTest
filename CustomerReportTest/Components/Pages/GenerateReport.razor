@@ -1,269 +1,295 @@
 ﻿@page "/generate-report/{OrganizationName}"
-@inject IJSRuntime JSRuntime
 @inject OrganizationService OrganizationService
+@rendermode InteractiveServer
 
 <h3>Report for @OrganizationName</h3>
 
-@if (reportGenerated && organizationData != null)
+<button class="btn btn-primary" @onclick="GenerateReportAsync">Generate Report</button>
+
+@if (reportGenerated)
 {
-    <div class="report-container">
-        <div class="organization">
-            <h3>Customer Name: @organizationData.customerName</h3>
-            <p>Organization ID: @organizationData.organizationId</p>
+    if (organizationData != null)
+    {
+        <div class="report-container">
+            <div class="organization">
+                <h3>Customer Name: @organizationData.customerName</h3>
+                <p>Organization ID: @organizationData.organizationId</p>
 
-            @foreach (var farm in organizationData.farms)
-            {
-                <div class="farm">
-                    <h4>Farm: @farm.Value.name</h4>
-                    <p>Location: @farm.Value.location</p>
-                    <p>Average temperature: @farm.Value.average_temp °C</p>
-                    <p>Average oxygen: @farm.Value.average_oxygen</p>
-                    <p>Average depth: @farm.Value.average_depth</p>
-                    <p>Average kjmhunn: @farm.Value.average_kjmhunn</p>
-                    <p>Average bevegelig: @farm.Value.average_bevegelig</p>
-                    <p>Average weight: @farm.Value.average_weight</p>
-                    <p>High baseline: @farm.Value.high_baseline</p>
-                    <p>Latitude: @farm.Value.latitude</p>
-                    <p>Longitude: @farm.Value.longitude</p>
+                @foreach (var farm in organizationData.farms)
+                {
+                    <div class="farm">
+                        <h4>Farm: @farm.Value.name</h4>
+                        <p>Location: @farm.Value.location</p>
+                        <p>Average temperature: @farm.Value.average_temp °C</p>
+                        <p>Average oxygen: @farm.Value.average_oxygen</p>
+                        <p>Average depth: @farm.Value.average_depth</p>
+                        <p>Average kjmhunn: @farm.Value.average_kjmhunn</p>
+                        <p>Average bevegelig: @farm.Value.average_bevegelig</p>
+                        <p>Average weight: @farm.Value.average_weight</p>
+                        <p>High baseline: @farm.Value.high_baseline</p>
+                        <p>Latitude: @farm.Value.latitude</p>
+                        <p>Longitude: @farm.Value.longitude</p>
 
-                    @foreach (var cage in farm.Value.cages)
-                    {
-                        <div class="cage">
-                            <h5>Cage Name: @cage.Value.serial_number</h5>
-                            <p>Cage ID: @cage.Value.id</p>
+                        @foreach (var cage in farm.Value.cages)
+                        {
+                            <div class="cage">
+                                <h5>Cage Name: @cage.Value.serial_number</h5>
+                                <p>Cage ID: @cage.Value.id</p>
 
-                            @if (cage.Value.DetailedData != null && cage.Value.DetailedData.Any())
-                            {
-                                var detailedData = cage.Value.DetailedData.First();
-
-                                <div class="table-container">
-                                    <table class="nested-table detailed-data-table">
-                                        <tr><th colspan="2">Environment Data</th></tr>
-                                        <tr>
-                                            <th>Min Depth</th>
-                                            <td>@detailedData.environment.min_depth</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Max Depth</th>
-                                            <td>@detailedData.environment.max_depth</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Min Oxygen</th>
-                                            <td>@detailedData.environment.min_oxygen</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Max Oxygen</th>
-                                            <td>@detailedData.environment.max_depth</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Min Temp</th>
-                                            <td>@detailedData.environment.min_temp</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Max Temp</th>
-                                            <td>@detailedData.environment.max_temp</td>
-                                        </tr>
-                                    </table>
-                                    <table class="nested-table detailed-data-table">
-                                        <tr><th colspan="2">Lice Details</th></tr>
-                                        <tr>
-                                            <th>Fish yesterday</th>
-                                            <td>@detailedData.lice.fishs_yesterday</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Fish today</th>
-                                            <td>@detailedData.lice.fishs_today</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Mature female lice</th>
-                                            <td>@detailedData.lice.kjmhunn</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Moving lice</th>
-                                            <td>@detailedData.lice.bevegelig</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Last Sample Date</th>
-                                            <td>@detailedData.lice.last_sample_date</td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            }
-
-                            <table>
-                                <tr><th>Fish Group Name</th><th>ID</th></tr>
-                                @foreach (var fishGroup in cage.Value.fishGroups)
+                                @if (cage.Value.DetailedData != null && cage.Value.DetailedData.Any())
                                 {
-                                    <tr>
-                                        <td>@fishGroup.name</td>
-                                        <td>@fishGroup.id</td>
-                                        <td>
-                                            @if (fishGroup.statistics != null)
-                                            {
-                                                foreach (var statistic in fishGroup.statistics)
+                                    var detailedData = cage.Value.DetailedData.First();
+
+                                    <div class="table-container">
+                                        <table class="nested-table detailed-data-table">
+                                            <tr><th colspan="2">Environment Data</th></tr>
+                                            <tr>
+                                                <th>Min Depth</th>
+                                                <td>@detailedData.environment.min_depth</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Max Depth</th>
+                                                <td>@detailedData.environment.max_depth</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Min Oxygen</th>
+                                                <td>@detailedData.environment.min_oxygen</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Max Oxygen</th>
+                                                <td>@detailedData.environment.max_depth</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Min Temp</th>
+                                                <td>@detailedData.environment.min_temp</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Max Temp</th>
+                                                <td>@detailedData.environment.max_temp</td>
+                                            </tr>
+                                        </table>
+                                        <table class="nested-table detailed-data-table">
+                                            <tr><th colspan="2">Lice Details</th></tr>
+                                            <tr>
+                                                <th>Fish yesterday</th>
+                                                <td>@detailedData.lice.fishs_yesterday</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Fish today</th>
+                                                <td>@detailedData.lice.fishs_today</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Mature female lice</th>
+                                                <td>@detailedData.lice.kjmhunn</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Moving lice</th>
+                                                <td>@detailedData.lice.bevegelig</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Last Sample Date</th>
+                                                <td>@detailedData.lice.last_sample_date</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                }
+
+                                <table>
+                                    <tr><th>Fish Group Name</th><th>ID</th></tr>
+                                    @foreach (var fishGroup in cage.Value.fishGroups)
+                                    {
+                                        <tr>
+                                            <td>@fishGroup.name</td>
+                                            <td>@fishGroup.id</td>
+                                            <td>
+                                                @if (fishGroup.statistics != null)
                                                 {
-                                                    <table class="nested-table">
-                                                        <tr><th>Date</th><th>Oxygen</th><th>Temperature</th><th>Number of Fish</th><th>Lice Details</th></tr>
-                                                        <tr>
-                                                            <td>@statistic.date</td>
-                                                            <td>@statistic.oxygen</td>
-                                                            <td>@statistic.temprature</td>
-                                                            <td>@statistic.numberOfFishs</td>
-                                                            <td>
-                                                                @if (statistic.lices != null)
-                                                                {
-                                                                    <table>
-                                                                        <tr><th>Type</th><th>Min</th><th>Average</th><th>Max</th></tr>
-                                                                        @foreach (var lice in statistic.lices)
+                                                    foreach (var statistic in fishGroup.statistics)
+                                                    {
+                                                        <table class="nested-table">
+                                                            <tr><th>Date</th><th>Oxygen</th><th>Temperature</th><th>Number of Fish</th><th>Lice Details</th></tr>
+                                                            <tr>
+                                                                <td>@statistic.date</td>
+                                                                <td>@statistic.oxygen</td>
+                                                                <td>@statistic.temprature</td>
+                                                                <td>@statistic.numberOfFishs</td>
+                                                                <td>
+                                                                    @if (statistic.lices != null)
+                                                                    {
+                                                                        <table>
+                                                                            <tr><th>Type</th><th>Min</th><th>Average</th><th>Max</th></tr>
+                                                                            @foreach (var lice in statistic.lices)
+                                                                            {
+                                                                                <tr>
+                                                                                    <td>@lice.name</td>
+                                                                                    <td>@lice.min</td>
+                                                                                    <td>@lice.average</td>
+                                                                                    <td>@lice.max</td>
+                                                                                </tr>
+                                                                            }
+                                                                        </table>
+                                                                    }
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    }
+                                                }
+                                                @if (fishGroup.averageData != null)
+                                                {
+                                                    foreach (var averageData in fishGroup.averageData)
+                                                    {
+                                                        <table class="nested-table average-data-table">
+                                                            <tr>
+                                                                <th>Week number</th>
+                                                                <th>Start date</th>
+                                                                <th>End date</th>
+                                                                <th>Average Weight</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>@averageData.average_weight.week_number</td>
+                                                                <td>@averageData.average_weight.start_date</td>
+                                                                <td>@averageData.average_weight.end_date</td>
+                                                                <td>@averageData.average_weight.average</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th colspan="4">Average Lice Details</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <td colspan="4">
+                                                                    <table class="nested-table lice-details-table">
+                                                                        @foreach (var lice in averageData.average_lice.lices)
                                                                         {
                                                                             <tr>
                                                                                 <td>@lice.name</td>
-                                                                                <td>@lice.min</td>
                                                                                 <td>@lice.average</td>
-                                                                                <td>@lice.max</td>
                                                                             </tr>
                                                                         }
                                                                     </table>
-                                                                }
-                                                            </td>
-                                                        </tr>
-                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    }
                                                 }
-                                            }
-                                            @if (fishGroup.averageData != null)
-                                            {
-                                                foreach (var averageData in fishGroup.averageData)
-                                                {
-                                                    <table class="nested-table average-data-table">
-                                                        <tr>
-                                                            <th>Week number</th>
-                                                            <th>Start date</th>
-                                                            <th>End date</th>
-                                                            <th>Average Weight</th>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>@averageData.average_weight.week_number</td>
-                                                            <td>@averageData.average_weight.start_date</td>
-                                                            <td>@averageData.average_weight.end_date</td>
-                                                            <td>@averageData.average_weight.average</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th colspan="4">Average Lice Details</th>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="4">
-                                                                <table class="nested-table lice-details-table">
-                                                                    @foreach (var lice in averageData.average_lice.lices)
-                                                                    {
-                                                                        <tr>
-                                                                            <td>@lice.name</td>
-                                                                            <td>@lice.average</td>
-                                                                        </tr>
-                                                                    }
-                                                                </table>
-                                                            </td>
-                                                        </tr>
-                                                    </table>
-                                                }
-                                            }
 
-                                        </td>
-                                    </tr>
-                                }
-                            </table>
+                                            </td>
+                                        </tr>
+                                    }
+                                </table>
 
-                            @if (cage.Value.SensorsInfo != null)
-                            {
-                                <h5> Sensor Data</h5>
-                                @foreach (var sensor in cage.Value.SensorsInfo)
+                                @if (cage.Value.SensorsInfo != null)
                                 {
-                                    <table class="nested-table">
-                                        <tr>
-                                            <th>Active</th>
-                                            <th>Sensor name</th>
-                                            <th>Last Schedule Status</th>
-                                            <th>Winch ID</th>
-                                            <th>Total fish today</th>
-                                        </tr>
-                                        <tr>
-                                            <td class="@(sensor.active ? "active-status-yes" : "active-status-no")">@(sensor.active ? "Yes" : "No")</td>
-                                            <td>@sensor.serial_number</td>
-                                            <td>@sensor.last_schedule_status</td>
-                                            <td>@sensor.winch</td>
-                                            <td>@sensor.total_fishs_today</td>
-                                        </tr>
-                                    </table>
-
-                                    @if (sensor.scheduleData != null)
+                                    <h5> Sensor Data</h5>
+                                    @foreach (var sensor in cage.Value.SensorsInfo)
                                     {
-                                        <h6>Schedule for Sensor</h6>
                                         <table class="nested-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Active</th>
-                                                    <th>Setting</th>
-                                                    <th>Positions</th>
-                                                    <th>Schedule Time</th>
-                                                    <th>Period (hours)</th>
-                                                    <th>Operation type</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach (var schedule in sensor.scheduleData)
-                                                {
-                                                    <tr>
-                                                        <td class="@(schedule.is_active ? "active-status-yes" : "active-status-no")">@(schedule.is_active ? "Yes" : "No")</td>
-                                                        <td>@schedule.setting</td>
-                                                        <td>@schedule.positions</td>
-                                                        <td>@schedule.schedule_time</td>
-                                                        <td>@schedule.period</td>
-                                                        <td>@schedule.operation_type</td>
-                                                    </tr>
-                                                }
-                                            </tbody>
+                                            <tr>
+                                                <th>Active</th>
+                                                <th>Sensor name</th>
+                                                <th>Last Schedule Status</th>
+                                                <th>Winch ID</th>
+                                                <th>Total fish today</th>
+                                            </tr>
+                                            <tr>
+                                                <td class="@(sensor.active ? "active-status-yes" : "active-status-no")">@(sensor.active ? "Yes" : "No")</td>
+                                                <td>@sensor.serial_number</td>
+                                                <td>@sensor.last_schedule_status</td>
+                                                <td>@sensor.winch</td>
+                                                <td>@sensor.total_fishs_today</td>
+                                            </tr>
                                         </table>
+
+                                        @if (sensor.scheduleData != null)
+                                        {
+                                            <h6>Schedule for Sensor</h6>
+                                            <table class="nested-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Active</th>
+                                                        <th>Setting</th>
+                                                        <th>Positions</th>
+                                                        <th>Schedule Time</th>
+                                                        <th>Period (hours)</th>
+                                                        <th>Operation type</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var schedule in sensor.scheduleData)
+                                                    {
+                                                        <tr>
+                                                            <td class="@(schedule.is_active ? "active-status-yes" : "active-status-no")">@(schedule.is_active ? "Yes" : "No")</td>
+                                                            <td>@schedule.setting</td>
+                                                            <td>@schedule.positions</td>
+                                                            <td>@schedule.schedule_time</td>
+                                                            <td>@schedule.period</td>
+                                                            <td>@schedule.operation_type</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        }
                                     }
                                 }
-                            }
-                        </div> <!-- cage -->
-                    }
-                </div> <!-- farm -->
-            }
-        </div> <!-- organization -->
-    </div> <!-- report-container -->
-}
-else
-{
-    <p>Report is not generated.</p>
+                            </div> <!-- cage -->
+                        }
+                    </div> <!-- farm -->
+                }
+            </div> <!-- organization -->
+        </div> <!-- report-container -->
+    }
+    else if (attemptedToGenerateReport)
+    {
+        <p>Report failed to generate or no data available.</p>
+    }
 }
 
-<ConfirmationDialog @ref="confirmationDialog" ConfirmationResponse="ConfirmationResponse" />
+
+@if (isLoading)
+{
+    <p>Fetching organization data...</p>
+}
+else if (reportGenerated && organizationData != null)
+{
+    <!-- Display the report -->
+}
+else if (attemptedToGenerateReport && !string.IsNullOrEmpty(errorMessage))
+{
+    <p class="text-danger">@errorMessage</p>
+}
+else if (attemptedToGenerateReport)
+{
+    <p>Report failed to generate or no data available.</p>
+}
+
+
 
 @code {
     [Parameter]
     public string OrganizationName { get; set; }
-
     private Organization organizationData;
     private bool reportGenerated = false;
-    private ConfirmationDialog confirmationDialog;
+    private bool attemptedToGenerateReport = false;
+    private bool isLoading = false;
+    private string errorMessage = "";
 
-    protected override async Task OnInitializedAsync()
+    private async Task GenerateReportAsync()
     {
-        confirmationDialog.ConfirmationMessage = $"Do you want to generate the report for {OrganizationName}?";
-        confirmationDialog.Show();
-    }
+        attemptedToGenerateReport = true;
+        isLoading = true;
+        errorMessage = "";
 
-    private async Task ConfirmationResponse(bool confirmed)
-    {
-        if (confirmed)
+        try
         {
             organizationData = await OrganizationService.GetOrganizationDataAsync(OrganizationName);
             reportGenerated = organizationData != null;
         }
-        else
+        catch (Exception ex)
         {
-            reportGenerated = false;
+            errorMessage = $"Failed to generate report: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
         }
     }
 }
-

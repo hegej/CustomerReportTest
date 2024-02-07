@@ -26,17 +26,21 @@
     public void Show()
     {
         IsVisible = true;
+        StateHasChanged();
     }
 
     private async Task Confirm()
     {
         IsVisible = false;
         await ConfirmationResponse.InvokeAsync(true);
+        StateHasChanged();
     }
 
     private async Task Cancel()
     {
         IsVisible = false;
         await ConfirmationResponse.InvokeAsync(false);
+        StateHasChanged();
     }
 }
+

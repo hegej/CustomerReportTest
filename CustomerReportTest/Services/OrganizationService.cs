@@ -22,7 +22,8 @@ namespace CustomerReportTest.Services
         {
             try
             {
-                var response = await _httpClient.GetFromJsonAsync<Organization>($"https://localhost:7220/OrganizationData/customer/{organizationName}");
+                var encodedName = Uri.EscapeDataString(organizationName);
+                var response = await _httpClient.GetFromJsonAsync<Organization>($"https://localhost:7220/OrganizationData/customer/{encodedName}");
                 return response;
             }
             catch (HttpRequestException e)
@@ -31,8 +32,6 @@ namespace CustomerReportTest.Services
                 return null;
             }
         }
-
-
     }
 }
 
