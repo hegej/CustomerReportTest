@@ -1,5 +1,7 @@
 ﻿@page "/generate-report/{OrganizationName}"
 @inject OrganizationService OrganizationService
+@inject Blazored.SessionStorage.ISessionStorageService SessionStorage
+@inject IJSRuntime JSRuntime
 @rendermode InteractiveServer
 
 <h3>Report for @OrganizationName</h3>
@@ -271,6 +273,15 @@ else if (attemptedToGenerateReport)
     private bool isLoading = false;
     private string errorMessage = "";
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadReportFromSessionAsync();
+            StateHasChanged();
+        }
+    }
+
     private async Task GenerateReportAsync()
     {
         attemptedToGenerateReport = true;
@@ -281,6 +292,11 @@ else if (attemptedToGenerateReport)
         {
             organizationData = await OrganizationService.GetOrganizationDataAsync(OrganizationName);
             reportGenerated = organizationData != null;
+
+            if (reportGenerated)
+            {
+                await SessionStorage.SetItemAsStringAsync($"report-{OrganizationName}", JsonSerializer.Serialize(organizationData));
+            }
         }
         catch (Exception ex)
         {
@@ -290,6 +306,16 @@ else if (attemptedToGenerateReport)
         {
             isLoading = false;
             StateHasChanged();
+        }
+    }
+
+    private async Task LoadReportFromSessionAsync()
+    {
+        var reportJson = await SessionStorage.GetItemAsStringAsync($"report-{OrganizationName}");
+        if (!string.IsNullOrEmpty(reportJson))
+        {
+            organizationData = JsonSerializer.Deserialize<Organization>(reportJson);
+            reportGenerated = organizationData != null;
         }
     }
 }
