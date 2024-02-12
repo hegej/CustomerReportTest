@@ -104,6 +104,8 @@
                                             <td>@fishGroup.name</td>
                                             <td>@fishGroup.id</td>
                                             <td>
+                                                <LineChart @ref="lineChart" Width="500" Class="mb-4" />
+                                                
                                                 @if (fishGroup.statistics != null)
                                                 {
                                                     foreach (var statistic in fishGroup.statistics)
@@ -262,8 +264,6 @@ else if (attemptedToGenerateReport)
     <p>Report failed to generate or no data available.</p>
 }
 
-
-
 @code {
     [Parameter]
     public string OrganizationName { get; set; }
@@ -272,6 +272,9 @@ else if (attemptedToGenerateReport)
     private bool attemptedToGenerateReport = false;
     private bool isLoading = false;
     private string errorMessage = "";
+    private LineChart lineChart = default!;
+    private LineChartOptions lineChartOptions = default!;
+    private ChartData chartData = default!;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -296,6 +299,18 @@ else if (attemptedToGenerateReport)
             if (reportGenerated)
             {
                 await SessionStorage.SetItemAsStringAsync($"report-{OrganizationName}", JsonSerializer.Serialize(organizationData));
+
+                PrepareChartData();
+
+                for (int i = 0; i < chartData.Length; i++)
+                {
+                    if (chartData[i] == null)
+                    {
+                        chartData[i] = 0;
+                    }
+                }
+
+                await lineChart.InitializeAsync(chartData: chartData, chartOptions: lineChartOptions, plugins: new string[] { "ChartDataLabels" });
             }
         }
         catch (Exception ex)
@@ -318,4 +333,101 @@ else if (attemptedToGenerateReport)
             reportGenerated = organizationData != null;
         }
     }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        if (reportGenerated && organizationData != null)
+        {
+            PrepareChartData();
+        }
+    }
+
+
+    private void PrepareChartData()
+    {
+        var colors = ColorBuilder.CategoricalTwelveColors;
+
+        var labels = new List<string>(); //dates
+
+        var bevegeligData = new List<double>();
+        var fastsittendeData = new List<double>();
+        var gattData = new List<double>();
+        var kjmhunnData = new List<double>();
+
+        foreach (var farm in organizationData.farms.Values)
+        {
+            foreach ( var cage in farm.cages.Values)
+            {
+                foreach (var fishgroup in cage.fishGroups)
+                {
+                    foreach (var statistic in fishgroup.statistics)
+                    {
+                        if (!labels.Contains(statistic.date))
+                        {
+                            labels.Add(statistic.date);
+                        }
+
+                        var bevegeligLice = statistic.lices.FirstOrDefault(lice => lice.name == "Bevegelig")?.average ?? 0;
+                        bevegeligData.Add(bevegeligLice);
+
+
+                        var fastsittendeLice = statistic.lices.FirstOrDefault(lice => lice.name == "Fastsittende")?.average ?? 0;
+                        fastsittendeData.Add(fastsittendeLice);
+
+                        var gattLice = statistic.lices.FirstOrDefault(lice => lice.name == "Gatt")?.average ?? 0;
+                        gattData.Add(gattLice);
+
+                        var kjmhunnLice = statistic.lices.FirstOrDefault(lice => lice.name == "Kjmhunn")?.average ?? 0;
+                        kjmhunnData.Add(kjmhunnLice);
+                    }
+                }
+            }
+        }
+
+
+        var datasets = new List<IChartDataset>();
+
+        datasets.Add(CreateLiceDataset("Bevegelig", bevegeligData, colors[0]));
+        datasets.Add(CreateLiceDataset("Fastsittende", fastsittendeData, colors[1]));
+        datasets.Add(CreateLiceDataset("Gatt", gattData, colors[2]));
+        datasets.Add(CreateLiceDataset("Kjmhunn", kjmhunnData, colors[3]));
+
+        chartData = new ChartData
+            {
+                Labels = labels.Distinct().OrderBy(label => label).ToList(),
+                Datasets = datasets
+            };
+
+
+        lineChartOptions = new();
+        lineChartOptions.Responsive = true;
+        lineChartOptions.Interaction = new Interaction { Mode = InteractionMode.Index };
+
+        lineChartOptions.Scales.X!.Title!.Text = "Date";
+        lineChartOptions.Scales.X.Title.Display = true;
+
+        lineChartOptions.Scales.Y!.Title!.Text = "Lice";
+        lineChartOptions.Scales.Y.Title.Display = true;
+
+        lineChartOptions.Plugins.Title!.Text = "Lice data";
+        lineChartOptions.Plugins.Title.Display = true;
+
+        lineChartOptions.Plugins.Datalabels.Color = "white";
+    }
+
+    private LineChartDataset CreateLiceDataset(string label, List<double> data, string color) => new LineChartDataset
+    {
+        Label = label,
+        Data = data,
+        BackgroundColor = new List<string> { color },
+        BorderColor = new List<string> { color },
+        BorderWidth = new List<double> { 2 },
+        HoverBorderWidth = new List<double> { 4 },
+        PointBackgroundColor = new List<string> { color },
+        PointRadius = new List<int> { 3 },
+        PointHoverRadius = new List<int> { 4 },
+
+        Datalabels = new() { Align = "end", Anchor = "end" }
+    };
 }

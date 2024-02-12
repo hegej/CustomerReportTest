@@ -34,7 +34,8 @@
             <div class="nav-headline px-3 py-2">Generate Reports:</div>
             @foreach (var org in organizations)
             {
-                <NavLink class="nav-link" href="@($"/generate-report/{org.name}")">
+                <NavLink class="nav-link" href="@($"/generate-report/{org.name}")" style="color: white;">
+                    <img src="images/FishIcon.png" alt="Icon" style="width: 20px; height: 20px;">
                     <span class="text">@org.name</span>
                 </NavLink>
             }

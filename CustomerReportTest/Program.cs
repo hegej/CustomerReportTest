@@ -10,10 +10,10 @@ builder.Services.AddHttpClient<OrganizationService>(client =>
     client.BaseAddress = new Uri("https://localhost:7220/");
 });
 
-
-
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddBlazorBootstrap();
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
